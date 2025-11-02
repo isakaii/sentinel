@@ -9,9 +9,10 @@ interface CourseListProps {
   courses: Course[];
   onAddCourse?: () => void;
   onUploadSyllabus?: (courseId: string) => void;
+  onDeleteCourse?: (courseId: string) => void;
 }
 
-export function CourseList({ courses, onAddCourse, onUploadSyllabus }: CourseListProps) {
+export function CourseList({ courses, onAddCourse, onUploadSyllabus, onDeleteCourse }: CourseListProps) {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
@@ -41,6 +42,7 @@ export function CourseList({ courses, onAddCourse, onUploadSyllabus }: CourseLis
               key={course.id}
               course={course}
               onUploadSyllabus={() => onUploadSyllabus?.(course.id)}
+              onDelete={() => onDeleteCourse?.(course.id)}
             />
           ))}
         </div>

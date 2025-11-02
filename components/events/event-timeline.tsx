@@ -11,11 +11,12 @@ import { formatEventDate } from "@/lib/utils/date";
 interface EventTimelineProps {
   events: Event[];
   courses: Course[];
+  onDeleteEvent?: (eventId: string) => void;
 }
 
 type ViewMode = "chronological" | "by-course";
 
-export function EventTimeline({ events, courses }: EventTimelineProps) {
+export function EventTimeline({ events, courses, onDeleteEvent }: EventTimelineProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("chronological");
   const [filterCourse, setFilterCourse] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
@@ -108,7 +109,14 @@ export function EventTimeline({ events, courses }: EventTimelineProps) {
               <div className="space-y-3">
                 {groupEvents.map((event) => {
                   const course = courses.find((c) => c.id === event.courseId)!;
-                  return <EventCard key={event.id} event={event} course={course} />;
+                  return (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      course={course}
+                      onDelete={() => onDeleteEvent?.(event.id)}
+                    />
+                  );
                 })}
               </div>
             </div>
