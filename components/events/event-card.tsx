@@ -1,13 +1,17 @@
-import { Clock, MapPin, FileText } from "lucide-react";
+"use client";
+
+import { Clock, MapPin, FileText, Trash2, MoreVertical } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Event, Course } from "@/lib/types";
 import { formatEventDate, formatEventTime } from "@/lib/utils/date";
 import { getCourseColorClasses } from "@/lib/utils/colors";
+import { DropdownMenu, DropdownMenuGroup, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 interface EventCardProps {
   event: Event;
   course: Course;
+  onDelete?: () => void;
 }
 
 const eventIcons = {
@@ -18,7 +22,7 @@ const eventIcons = {
   important_date: "📅",
 };
 
-export function EventCard({ event, course }: EventCardProps) {
+export function EventCard({ event, course, onDelete }: EventCardProps) {
   const colorClasses = getCourseColorClasses(course.color);
 
   return (
@@ -35,7 +39,22 @@ export function EventCard({ event, course }: EventCardProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
             <h3 className="font-semibold text-gray-900 truncate">{event.title}</h3>
-            <Badge variant={event.type}>{event.type}</Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant={event.type}>{event.type}</Badge>
+              {onDelete && (
+                <DropdownMenu
+                  trigger={<MoreVertical className="h-4 w-4 text-gray-600" />}
+                  triggerClassName="rounded-lg p-1 hover:bg-gray-100 transition-colors"
+                >
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem onClick={onDelete} danger>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete Event
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-2 mb-2">

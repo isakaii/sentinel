@@ -1,20 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { NextDeadline } from "@/components/events/next-deadline";
 import { ComingUpWeek } from "@/components/events/coming-up-week";
 import { CourseList } from "@/components/courses/course-list";
 import { AddCourseModal } from "@/components/courses/add-course-modal";
 import { UploadSyllabusModal } from "@/components/courses/upload-syllabus-modal";
-import { mockCourses, mockEvents } from "@/lib/data/mock";
-import { Course, CourseColor } from "@/lib/types";
+import { Course, Event, CourseColor } from "@/lib/types";
 
 export default function DashboardPage() {
-  const [courses, setCourses] = useState(mockCourses);
-  const [events] = useState(mockEvents);
+  const { user } = useAuth();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showAddCourse, setShowAddCourse] = useState(false);
   const [uploadSyllabusCourseId, setUploadSyllabusCourseId] = useState<string | null>(null);
+
+  // Fetch courses and events on mount
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [coursesRes, eventsRes] = await Promise.all([
+        fetch('/api/courses'),
+        fetch('/api/events'),
+      ]);
+
+      if (coursesRes.ok) {
+        const { courses: fetchedCourses } = await coursesRes.json();
+        setCourses(fetchedCourses || []);
+      }
+
+      if (eventsRes.ok) {
+        const { events: fetchedEvents } = await eventsRes.json();
+        setEvents(fetchedEvents || []);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Get next deadline (first incomplete event)
   const nextEvent = events.filter((e) => !e.completed)[0];
@@ -24,57 +55,111 @@ export default function DashboardPage() {
   const upcomingEvents = events.filter((e) => !e.completed).slice(1);
 
   const handleAddCourse = async (file: File, color: CourseColor) => {
-    // Mock course extraction from PDF
-    console.log("Uploading syllabus and extracting course info:", file.name);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
 
-    // Simulate upload and extraction delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await fetch('/api/syllabi/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-    // Mock extracted course data
-    const newCourse: Course = {
-      id: String(courses.length + 1),
-      userId: "1",
-      courseName: "New Course from Syllabus",
-      courseCode: "NEW 101",
-      color,
-      instructor: "Dr. Extracted",
-      term: "Fall 2024",
-      syllabusUploaded: true,
-      eventsExtracted: 5,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload syllabus');
+      }
 
-    setCourses([...courses, newCourse]);
+      const { course: newCourse, events: newEvents } = await response.json();
+
+      // Update the color if different from what was extracted
+      if (color !== newCourse.color) {
+        await fetch(`/api/courses/${newCourse.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ color }),
+        });
+        newCourse.color = color;
+      }
+
+      // Refresh data
+      await fetchData();
+    } catch (error) {
+      console.error('Error adding course:', error);
+      alert(error instanceof Error ? error.message : 'Failed to upload syllabus');
+    }
   };
 
   const handleUploadSyllabus = async (file: File) => {
-    // Mock upload - in real implementation, this would call the API
-    console.log("Uploading syllabus:", file.name);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      if (uploadSyllabusCourseId) {
+        formData.append('courseId', uploadSyllabusCourseId);
+      }
 
-    // Simulate upload delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await fetch('/api/syllabi/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-    // Update course to mark syllabus as uploaded
-    if (uploadSyllabusCourseId) {
-      setCourses(
-        courses.map((course) =>
-          course.id === uploadSyllabusCourseId
-            ? { ...course, syllabusUploaded: true, eventsExtracted: 5 }
-            : course
-        )
-      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload syllabus');
+      }
+
+      // Refresh data
+      await fetchData();
+    } catch (error) {
+      console.error('Error uploading syllabus:', error);
+      alert(error instanceof Error ? error.message : 'Failed to upload syllabus');
+    }
+  };
+
+  const handleDeleteCourse = async (courseId: string) => {
+    if (!confirm('Are you sure you want to delete this course? This will also delete all associated events.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/courses/${courseId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete course');
+      }
+
+      await fetchData();
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      alert('Failed to delete course. Please try again.');
     }
   };
 
   const uploadCourse = courses.find((c) => c.id === uploadSyllabusCourseId);
+
+  const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'there';
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your dashboard...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-8">
         {/* Welcome Message */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, Isabella</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {userName}</h1>
           <p className="text-gray-600">Here's what's happening with your courses</p>
         </div>
 
@@ -93,6 +178,7 @@ export default function DashboardPage() {
           courses={courses}
           onAddCourse={() => setShowAddCourse(true)}
           onUploadSyllabus={setUploadSyllabusCourseId}
+          onDeleteCourse={handleDeleteCourse}
         />
 
         {/* Modals */}

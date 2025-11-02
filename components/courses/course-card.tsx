@@ -1,21 +1,20 @@
 "use client";
 
-import { FileText, MoreVertical, Upload, Check } from "lucide-react";
+import { FileText, MoreVertical, Upload, Check, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Course } from "@/lib/types";
 import { getCourseColorClasses } from "@/lib/utils/colors";
 import { cn } from "@/lib/utils/cn";
+import { DropdownMenu, DropdownMenuGroup, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 interface CourseCardProps {
   course: Course;
   onUploadSyllabus?: () => void;
+  onDelete?: () => void;
 }
 
-export function CourseCard({ course, onUploadSyllabus }: CourseCardProps) {
+export function CourseCard({ course, onUploadSyllabus, onDelete }: CourseCardProps) {
   const colorClasses = getCourseColorClasses(course.color);
-  const progress = course.eventsExtracted > 0
-    ? Math.min((course.eventsExtracted / 10) * 100, 100)
-    : 0;
 
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
@@ -38,9 +37,17 @@ export function CourseCard({ course, onUploadSyllabus }: CourseCardProps) {
               <p className="text-sm text-gray-600">{course.courseName}</p>
             </div>
           </div>
-          <button className="rounded-lg p-1 hover:bg-white/50 transition-colors">
-            <MoreVertical className="h-5 w-5 text-gray-600" />
-          </button>
+          <DropdownMenu
+            trigger={<MoreVertical className="h-5 w-5 text-gray-600" />}
+            triggerClassName="rounded-lg p-1 hover:bg-white/50 transition-colors"
+          >
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={onDelete} danger>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Course
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -56,12 +63,12 @@ export function CourseCard({ course, onUploadSyllabus }: CourseCardProps) {
 
         {/* Syllabus Status */}
         <div>
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <FileText className="h-4 w-4 text-gray-400" />
               <span className="text-sm font-medium text-gray-700">
                 {course.syllabusUploaded
-                  ? `${course.eventsExtracted} events extracted`
+                  ? "Syllabus uploaded"
                   : "No syllabus uploaded"}
               </span>
             </div>
@@ -72,19 +79,23 @@ export function CourseCard({ course, onUploadSyllabus }: CourseCardProps) {
               </span>
             )}
           </div>
-
-          {/* Progress Bar */}
-          {course.syllabusUploaded && (
-            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className={cn("h-full rounded-full transition-all",
-                  colorClasses.bg.replace("100", "500")
-                )}
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          )}
         </div>
+
+        {/* Events Count Badge */}
+        {course.syllabusUploaded && course.eventsExtracted > 0 && (
+          <div className={cn(
+            "rounded-lg px-4 py-3 flex items-center justify-between",
+            colorClasses.bg
+          )}>
+            <span className="text-sm font-medium text-gray-700">Calendar Events</span>
+            <span className={cn(
+              "text-2xl font-bold",
+              colorClasses.text
+            )}>
+              {course.eventsExtracted}
+            </span>
+          </div>
+        )}
 
         {/* Upload Button */}
         {!course.syllabusUploaded && onUploadSyllabus && (
@@ -95,14 +106,6 @@ export function CourseCard({ course, onUploadSyllabus }: CourseCardProps) {
             <Upload className="h-4 w-4" />
             Upload Syllabus
           </button>
-        )}
-
-        {/* Progress Label */}
-        {course.syllabusUploaded && (
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>Progress</span>
-            <span>{course.eventsExtracted}/10</span>
-          </div>
         )}
       </div>
     </Card>
