@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+@theme {
+  /* Course colors from mockups */
+  --color-course-purple: #8b5cf6;
+  --color-course-blue: #3b82f6;
+  --color-course-red: #ef4444;
+  --color-course-green: #10b981;
+  --color-course-orange: #f59e0b;
+  --color-course-pink: #ec4899;
+  --color-course-indigo: #6366f1;
+  --color-course-teal: #14b8a6;
+
+  /* Event type colors */
+  --color-event-quiz: #f59e0b;
+  --color-event-assignment: #10b981;
+  --color-event-exam: #ef4444;
+  --color-event-reading: #10b981;
+}
+
 @layer base {
   * {
     border-color: theme(colors.gray.200);
