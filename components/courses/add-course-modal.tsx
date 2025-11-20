@@ -15,7 +15,7 @@ interface AddCourseModalProps {
 }
 
 const courseColors: { value: CourseColor; class: string }[] = [
-  { value: "purple", class: "bg-purple-500" },
+  { value: "cardinal", class: "bg-red-700" },
   { value: "blue", class: "bg-blue-500" },
   { value: "red", class: "bg-red-500" },
   { value: "green", class: "bg-green-500" },
@@ -37,7 +37,7 @@ const loadingMessages = [
 ];
 
 export function AddCourseModal({ isOpen, onClose, onUpload }: AddCourseModalProps) {
-  const [selectedColor, setSelectedColor] = useState<CourseColor>("purple");
+  const [selectedColor, setSelectedColor] = useState<CourseColor>("cardinal");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -135,7 +135,7 @@ export function AddCourseModal({ isOpen, onClose, onUpload }: AddCourseModalProp
     setError(null);
     setSuccess(false);
     setUploading(false);
-    setSelectedColor("purple");
+    setSelectedColor("cardinal");
     onClose();
   };
 
@@ -183,7 +183,7 @@ export function AddCourseModal({ isOpen, onClose, onUpload }: AddCourseModalProp
             className={cn(
               "cursor-pointer rounded-lg border-2 border-dashed p-12 text-center transition-colors",
               isDragActive
-                ? "border-purple-400 bg-purple-50"
+                ? "border-red-600 bg-red-50"
                 : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
             )}
           >
@@ -203,12 +203,12 @@ export function AddCourseModal({ isOpen, onClose, onUpload }: AddCourseModalProp
               // Loading State
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
-                    <Loader2 className="h-5 w-5 text-purple-600 animate-spin" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100">
+                    <Loader2 className="h-5 w-5 text-red-700 animate-spin" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                    <p className="text-sm text-purple-600 animate-pulse">
+                    <p className="text-sm text-red-700 animate-pulse">
                       {loadingMessages[loadingMessageIndex]}
                     </p>
                   </div>
@@ -219,7 +219,7 @@ export function AddCourseModal({ isOpen, onClose, onUpload }: AddCourseModalProp
                   </div>
                   <div className="relative flex items-center">
                     <div
-                      className="bg-purple-600 rounded-full h-2 animate-pulse transition-all duration-500"
+                      className="bg-red-700 rounded-full h-2 animate-pulse transition-all duration-500"
                       style={{
                         width: `${Math.min((loadingMessageIndex + 1) * (100 / loadingMessages.length), 100)}%`
                       }}
@@ -231,8 +231,8 @@ export function AddCourseModal({ isOpen, onClose, onUpload }: AddCourseModalProp
               // File Preview (not uploading)
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
-                    <FileText className="h-5 w-5 text-purple-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100">
+                    <FileText className="h-5 w-5 text-red-700" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">{file.name}</p>

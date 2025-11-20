@@ -25,7 +25,7 @@ export default function Home() {
               onClick={() => setActiveTab('login')}
               className={`flex-1 pb-3 text-center font-medium transition-colors ${
                 activeTab === 'login'
-                  ? 'text-purple-600 border-b-2 border-purple-600'
+                  ? 'text-red-700 border-b-2 border-red-700'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -35,7 +35,7 @@ export default function Home() {
               onClick={() => setActiveTab('signup')}
               className={`flex-1 pb-3 text-center font-medium transition-colors ${
                 activeTab === 'signup'
-                  ? 'text-purple-600 border-b-2 border-purple-600'
+                  ? 'text-red-700 border-b-2 border-red-700'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >

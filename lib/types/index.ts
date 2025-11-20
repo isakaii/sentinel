@@ -1,7 +1,7 @@
 // Core type definitions for Sentinel
 
 export type CourseColor =
-  | "purple"
+  | "cardinal"
   | "blue"
   | "red"
   | "green"
