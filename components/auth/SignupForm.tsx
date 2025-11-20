@@ -78,7 +78,7 @@ export function SignupForm() {
         </div>
         <button
           onClick={() => setVerificationSent(false)}
-          className="text-sm text-purple-600 hover:text-purple-700"
+          className="text-sm text-red-700 hover:text-red-900"
         >
           ← Back to sign up
         </button>

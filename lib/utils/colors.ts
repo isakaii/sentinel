@@ -1,10 +1,10 @@
 import { CourseColor } from "@/lib/types";
 
 export const courseColors: Record<CourseColor, { bg: string; text: string; border: string }> = {
-  purple: {
-    bg: "bg-purple-100",
-    text: "text-purple-700",
-    border: "border-purple-300",
+  cardinal: {
+    bg: "bg-red-100",
+    text: "text-red-900",
+    border: "border-red-500",
   },
   blue: {
     bg: "bg-blue-100",
@@ -43,4 +43,15 @@ export const courseColors: Record<CourseColor, { bg: string; text: string; borde
   },
 };
 
-export const getCourseColorClasses = (color: CourseColor) => courseColors[color];
+// Fallback colors for backward compatibility with old "purple" data
+const legacyColorMap: Record<string, CourseColor> = {
+  purple: "cardinal", // Map old purple to new cardinal
+};
+
+export const getCourseColorClasses = (color: CourseColor | string) => {
+  // Handle legacy colors
+  const mappedColor = legacyColorMap[color] || color;
+
+  // Return the color classes, fallback to cardinal if not found
+  return courseColors[mappedColor as CourseColor] || courseColors.cardinal;
+};

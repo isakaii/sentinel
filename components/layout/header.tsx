@@ -22,7 +22,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo and Title */}
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-700">
               <span className="text-lg font-bold text-white">S</span>
             </div>
             <h1 className="text-xl font-bold text-gray-900">Sentinel</h1>
@@ -51,7 +51,7 @@ export function Header() {
 
             {/* User Info */}
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-purple-600 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-full bg-red-700 flex items-center justify-center">
                 <span className="text-sm font-medium text-white">
                   {userInitial}
                 </span>

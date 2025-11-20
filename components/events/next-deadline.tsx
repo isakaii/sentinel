@@ -23,10 +23,10 @@ export function NextDeadline({ event, course }: NextDeadlineProps) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="bg-purple-50 px-6 py-3 border-b border-purple-100">
+      <div className="bg-red-50 px-6 py-3 border-b border-red-100">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-purple-700">Next Deadline</p>
-          <Clock className="h-4 w-4 text-purple-600" />
+          <p className="text-sm font-medium text-red-900">Next Deadline</p>
+          <Clock className="h-4 w-4 text-red-700" />
         </div>
       </div>
 
