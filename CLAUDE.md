@@ -9,7 +9,9 @@ Sentinel is an academic calendar management application built with Next.js 15 th
 **Current Status**:
 - ✅ Frontend complete with full UI/UX implementation
 - ✅ Backend core features implemented (authentication, database, API routes, PDF processing, AI extraction)
-- 🚧 In progress: Google Calendar integration, date synchronization, and advanced features
+- ✅ Date synchronization (timeline shows only upcoming events based on current date)
+- ✅ Event completion tracking, event editing (CRUD)
+- 🚧 In progress: Google Calendar integration and advanced features
 
 ## Development Commands
 
@@ -154,31 +156,18 @@ The following backend features are fully implemented:
 
 ### ✅ UI Features
 - Course management (add, delete, view)
-- Event timeline with filtering (by course, by type)
+- Event timeline with filtering (by course, by type, by completion status)
 - Event deletion with confirmation
+- **Event completion tracking** with checkbox UI, visual feedback, and show/hide completed filter
+- **Event editing** with full modal interface for updating all event fields (title, description, date, time, type)
 - Loading states with animated feedback
 - Event count display (replaced problematic progress bars)
-- Dropdown menus for actions (delete course, delete event)
+- Dropdown menus for actions (edit event, delete course, delete event)
+- **Date-based filtering** - Dashboard shows only upcoming events (today and future)
 
 ## Remaining Features to Implement
 
-### 🚧 Priority 1: Date Synchronization
-**Problem**: Event timeline shows "Next Deadline" and "Coming Up This Week" based on hardcoded dates in the database, not the actual current date. This makes the UI confusing when viewing past or future events.
-
-**Solution Needed**:
-- Sync application to today's date for realistic event filtering
-- Update event timeline to filter by actual current date
-- Fix "Coming Up This Week" to show events in next 7 days from today
-- Update "Next Deadline" to show the nearest upcoming incomplete event
-- Consider adding date utilities for relative date calculations
-
-**Files to Modify**:
-- `components/events/coming-up-week.tsx` - Filter events by current week
-- `components/events/next-deadline.tsx` - Find nearest upcoming event
-- `app/(dashboard)/dashboard/page.tsx` - Update event filtering logic
-- `lib/utils/date.ts` - Add utilities for current date handling
-
-### 🚧 Priority 2: Google Calendar Integration
+### 🚧 Priority 1: Google Calendar Integration
 **Status**: Database schema ready (`google_calendar_connected`, `synced_to_calendar`, `google_calendar_event_id` fields exist)
 
 **Remaining Work**:
@@ -208,53 +197,43 @@ The following backend features are fully implemented:
 - Update event creation to trigger calendar sync
 - Add sync status indicators to UI components
 
-### 🚧 Priority 3: Additional Features
+### 🚧 Priority 2: Additional Features
 
-1. **Event Editing**
-   - Allow users to manually edit event details
-   - Update event dates, times, descriptions
-   - Change event types
-
-2. **Event Completion Tracking**
-   - Add checkbox to mark events as complete
-   - Visual indicators for completed events
-   - Filter to show/hide completed events
-   - Statistics on completion rates
-
-3. **Notifications & Reminders**
+1. **Notifications & Reminders**
    - Email reminders for upcoming deadlines
    - In-app notification system
    - Customizable reminder timing (1 day before, 1 week before, etc.)
 
-4. **Bulk Operations**
+2. **Bulk Operations**
    - Select multiple events for bulk actions
    - Bulk delete events
    - Bulk mark as complete
 
-5. **Advanced Syllabus Parsing**
+3. **Advanced Syllabus Parsing**
    - Support for non-PDF formats (Word docs, images)
    - Manual event creation from UI
    - AI improvement: better date inference and context understanding
    - Handle multi-semester syllabi
 
-6. **Analytics & Insights**
+4. **Analytics & Insights**
    - Workload visualization (events per week)
    - Course-by-course workload comparison
    - Upcoming deadline density heatmap
    - Study time recommendations based on upcoming events
+   - Completion statistics and trends
 
-7. **Course Management Enhancements**
+5. **Course Management Enhancements**
    - Edit course details (name, instructor, term)
    - Archive courses instead of deleting
    - Course templates for common course structures
    - Re-upload syllabus to update events
 
-8. **Export Features**
+6. **Export Features**
    - Export events to .ics file
    - Export to other calendar platforms (Outlook, Apple Calendar)
    - PDF export of schedule
 
-9. **Collaboration Features**
+7. **Collaboration Features**
    - Share course schedules with classmates
    - Group study session scheduling
    - Study group coordination
