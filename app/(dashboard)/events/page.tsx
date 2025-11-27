@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { EventTimeline } from "@/components/events/event-timeline";
+import { EditEventModal } from "@/components/events/edit-event-modal";
 import { Course, Event } from "@/lib/types";
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -60,6 +62,52 @@ export default function EventsPage() {
     }
   };
 
+  const handleToggleComplete = async (eventId: string, completed: boolean) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update event');
+      }
+
+      // Optimistically update local state
+      setEvents((prev) =>
+        prev.map((e) => (e.id === eventId ? { ...e, completed } : e))
+      );
+    } catch (error) {
+      console.error('Error toggling completion:', error);
+      alert('Failed to update event. Please try again.');
+      // Refetch to ensure consistency
+      await fetchData();
+    }
+  };
+
+  const handleEditEvent = async (eventId: string, updates: Partial<Event>) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update event');
+      }
+
+      // Refresh data to get updated event
+      await fetchData();
+    } catch (error) {
+      console.error('Error editing event:', error);
+      throw error; // Re-throw so modal can handle it
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -75,7 +123,22 @@ export default function EventsPage() {
 
   return (
     <DashboardLayout>
-      <EventTimeline events={events} courses={courses} onDeleteEvent={handleDeleteEvent} />
+      <EventTimeline
+        events={events}
+        courses={courses}
+        onDeleteEvent={handleDeleteEvent}
+        onToggleComplete={handleToggleComplete}
+        onEditEvent={setEditingEvent}
+      />
+
+      {editingEvent && (
+        <EditEventModal
+          isOpen={!!editingEvent}
+          onClose={() => setEditingEvent(null)}
+          event={editingEvent}
+          onSave={handleEditEvent}
+        />
+      )}
     </DashboardLayout>
   );
 }

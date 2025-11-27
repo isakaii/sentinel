@@ -9,6 +9,7 @@ import { CourseList } from "@/components/courses/course-list";
 import { AddCourseModal } from "@/components/courses/add-course-modal";
 import { UploadSyllabusModal } from "@/components/courses/upload-syllabus-modal";
 import { Course, Event, CourseColor } from "@/lib/types";
+import { isUpcoming } from "@/lib/utils/date";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -47,12 +48,13 @@ export default function DashboardPage() {
     }
   };
 
-  // Get next deadline (first incomplete event)
-  const nextEvent = events.filter((e) => !e.completed)[0];
+  // Get next deadline (first incomplete, upcoming event)
+  const upcomingIncompleteEvents = events.filter((e) => !e.completed && isUpcoming(e.date));
+  const nextEvent = upcomingIncompleteEvents[0];
   const nextEventCourse = courses.find((c) => c.id === nextEvent?.courseId);
 
-  // Get upcoming events (next 3 incomplete events excluding the first one)
-  const upcomingEvents = events.filter((e) => !e.completed).slice(1);
+  // Get upcoming events (remaining incomplete, upcoming events)
+  const upcomingEvents = upcomingIncompleteEvents.slice(1);
 
   const handleAddCourse = async (file: File, color: CourseColor) => {
     try {

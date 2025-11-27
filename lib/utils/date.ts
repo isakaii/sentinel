@@ -1,4 +1,17 @@
-import { format, formatDistanceToNow, isPast, isToday, isTomorrow, isThisWeek, parseISO } from "date-fns";
+import {
+  format,
+  formatDistanceToNow,
+  isPast,
+  isToday,
+  isTomorrow,
+  isThisWeek,
+  parseISO,
+  isAfter,
+  isBefore,
+  addDays,
+  startOfDay,
+  endOfDay
+} from "date-fns";
 
 export function formatEventDate(dateString: string): string {
   const date = parseISO(dateString);
@@ -39,4 +52,34 @@ export function formatRelativeDate(dateString: string): string {
 
 export function isOverdue(dateString: string): boolean {
   return isPast(parseISO(dateString));
+}
+
+/**
+ * Check if a date is today or in the future
+ */
+export function isUpcoming(dateString: string): boolean {
+  const eventDate = startOfDay(parseISO(dateString));
+  const today = startOfDay(new Date());
+  return isAfter(eventDate, today) || isToday(eventDate);
+}
+
+/**
+ * Check if a date is within the next 7 days (including today)
+ */
+export function isWithinNextWeek(dateString: string): boolean {
+  const eventDate = startOfDay(parseISO(dateString));
+  const today = startOfDay(new Date());
+  const weekFromNow = endOfDay(addDays(today, 7));
+
+  return (isAfter(eventDate, today) || isToday(eventDate)) && isBefore(eventDate, weekFromNow);
+}
+
+/**
+ * Get days until an event (negative if past)
+ */
+export function getDaysUntil(dateString: string): number {
+  const eventDate = startOfDay(parseISO(dateString));
+  const today = startOfDay(new Date());
+  const diffTime = eventDate.getTime() - today.getTime();
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }

@@ -26,6 +26,7 @@ export async function PATCH(
     if (body.description !== undefined) updates.description = body.description
     if (body.date !== undefined) updates.date = body.date
     if (body.time !== undefined) updates.time = body.time
+    if (body.type !== undefined) updates.type = body.type
 
     const { data: eventData, error } = await supabase
       .from('events')
