@@ -56,7 +56,7 @@ export default function DashboardPage() {
   // Get upcoming events (remaining incomplete, upcoming events)
   const upcomingEvents = upcomingIncompleteEvents.slice(1);
 
-  const handleAddCourse = async (file: File, color: CourseColor) => {
+  const handleAddCourse = async (file: File, color: CourseColor, addToGoogleCalendar?: boolean) => {
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -75,12 +75,41 @@ export default function DashboardPage() {
 
       // Update the color if different from what was extracted
       if (color !== newCourse.color) {
-        await fetch(`/api/courses/${newCourse.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ color }),
-        });
-        newCourse.color = color;
+        try {
+          const colorResponse = await fetch(`/api/courses/${newCourse.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ color }),
+          });
+
+          if (colorResponse.ok) {
+            newCourse.color = color;
+          } else {
+            console.error('Failed to update course color:', await colorResponse.text());
+            // Don't throw - the course was still created successfully
+          }
+        } catch (colorError) {
+          console.error('Error updating course color:', colorError);
+          // Don't throw - the course was still created successfully
+        }
+      }
+
+      // If user wants to add to Google Calendar
+      if (addToGoogleCalendar && newCourse.id) {
+        try {
+          const calendarResponse = await fetch(`/api/courses/${newCourse.id}/calendar`, {
+            method: 'POST'
+          });
+
+          if (!calendarResponse.ok) {
+            // Don't throw error, just log it - syllabus upload was successful
+            console.error('Failed to create Google Calendar:', await calendarResponse.text());
+            alert('Course created successfully, but failed to create Google Calendar. You can try again later from the course settings.');
+          }
+        } catch (calendarError) {
+          console.error('Error creating Google Calendar:', calendarError);
+          // Don't throw - course creation was still successful
+        }
       }
 
       // Refresh data
@@ -91,7 +120,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleUploadSyllabus = async (file: File) => {
+  const handleUploadSyllabus = async (file: File, addToGoogleCalendar?: boolean) => {
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -107,6 +136,26 @@ export default function DashboardPage() {
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to upload syllabus');
+      }
+
+      const result = await response.json();
+
+      // If user wants to add to Google Calendar and course was created successfully
+      if (addToGoogleCalendar && result.course?.id) {
+        try {
+          const calendarResponse = await fetch(`/api/courses/${result.course.id}/calendar`, {
+            method: 'POST'
+          });
+
+          if (!calendarResponse.ok) {
+            // Don't throw error, just log it - syllabus upload was successful
+            console.error('Failed to create Google Calendar:', await calendarResponse.text());
+            alert('Syllabus uploaded successfully, but failed to create Google Calendar. You can try again later from the course settings.');
+          }
+        } catch (calendarError) {
+          console.error('Error creating Google Calendar:', calendarError);
+          // Don't throw - syllabus upload was still successful
+        }
       }
 
       // Refresh data

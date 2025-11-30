@@ -365,7 +365,7 @@ Return the data as a JSON object following the exact structure specified.`,
       courseData = data
     } else {
       // Create new course - pick a default color
-      const colors = ['purple', 'blue', 'red', 'green', 'orange', 'pink', 'indigo', 'teal']
+      const colors = ['cardinal', 'blue', 'red', 'green', 'orange', 'pink', 'indigo', 'teal']
       const randomColor = colors[Math.floor(Math.random() * colors.length)]
 
       const { data, error } = await supabase
@@ -419,74 +419,83 @@ Return the data as a JSON object following the exact structure specified.`,
     const eventsToInsert = []
 
     // Add assignments
-    for (const assignment of parsed.assignments) {
-      if (assignment.dueDate) {
-        // Map assignment types to our event types
-        let eventType: EventType = 'assignment'
-        if (assignment.type === 'discussion') {
-          eventType = 'reading' // Using 'reading' for discussion posts as closest match
-        }
+    if (parsed.assignments && Array.isArray(parsed.assignments)) {
+      for (const assignment of parsed.assignments) {
+        // Validate date - skip if invalid or "null" string
+        if (assignment.dueDate && assignment.dueDate !== 'null' && assignment.dueDate !== 'undefined') {
+          // Map assignment types to our event types
+          let eventType: EventType = 'assignment'
+          if (assignment.type === 'discussion') {
+            eventType = 'reading' // Using 'reading' for discussion posts as closest match
+          }
 
-        eventsToInsert.push({
-          course_id: course.id,
-          user_id: user.id,
-          type: eventType,
-          title: assignment.title,
-          description: assignment.description || `${assignment.type || 'Assignment'}: ${assignment.title}`,
-          date: assignment.dueDate,
-          time: assignment.dueTime,
-          points: assignment.points,
-          submission_method: assignment.submissionMethod,
-          completed: false,
-          synced_to_calendar: false,
-        })
+          eventsToInsert.push({
+            course_id: course.id,
+            user_id: user.id,
+            type: eventType,
+            title: assignment.title,
+            description: assignment.description || `${assignment.type || 'Assignment'}: ${assignment.title}`,
+            date: assignment.dueDate,
+            time: assignment.dueTime,
+            points: assignment.points,
+            submission_method: assignment.submissionMethod,
+            completed: false,
+            synced_to_calendar: false,
+          })
+        }
       }
     }
 
     // Add exams (including quizzes)
-    for (const exam of parsed.exams) {
-      if (exam.date) {
-        // Map exam types to our event types
-        let eventType: EventType = 'exam'
-        if (exam.type === 'quiz' || exam.type === 'test') {
-          eventType = 'quiz'
-        }
+    if (parsed.exams && Array.isArray(parsed.exams)) {
+      for (const exam of parsed.exams) {
+        // Validate date - skip if invalid or "null" string
+        if (exam.date && exam.date !== 'null' && exam.date !== 'undefined') {
+          // Map exam types to our event types
+          let eventType: EventType = 'exam'
+          if (exam.type === 'quiz' || exam.type === 'test') {
+            eventType = 'quiz'
+          }
 
-        eventsToInsert.push({
-          course_id: course.id,
-          user_id: user.id,
-          type: eventType,
-          title: exam.title,
-          description: exam.coverage || exam.weight ? `${exam.coverage || ''}${exam.weight ? ` (${exam.weight}% of grade)` : ''}`.trim() : '',
-          date: exam.date,
-          time: exam.time,
-          location: exam.location,
-          coverage: exam.coverage,
-          completed: false,
-          synced_to_calendar: false,
-        })
+          eventsToInsert.push({
+            course_id: course.id,
+            user_id: user.id,
+            type: eventType,
+            title: exam.title,
+            description: exam.coverage || exam.weight ? `${exam.coverage || ''}${exam.weight ? ` (${exam.weight}% of grade)` : ''}`.trim() : '',
+            date: exam.date,
+            time: exam.time,
+            location: exam.location,
+            coverage: exam.coverage,
+            completed: false,
+            synced_to_calendar: false,
+          })
+        }
       }
     }
 
     // Add important dates
-    for (const importantDate of parsed.importantDates) {
-      if (importantDate.date) {
-        const eventType: EventType =
-          importantDate.type === 'reading' ? 'reading' :
-          importantDate.type === 'quiz' ? 'quiz' :
-          importantDate.type === 'discussion' ? 'reading' :
-          'important_date'
+    if (parsed.importantDates && Array.isArray(parsed.importantDates)) {
+      for (const importantDate of parsed.importantDates) {
+        // Validate date - skip if invalid or "null" string
+        if (importantDate.date && importantDate.date !== 'null' && importantDate.date !== 'undefined') {
+          const eventType: EventType =
+            importantDate.type === 'reading' ? 'reading' :
+            importantDate.type === 'quiz' ? 'quiz' :
+            importantDate.type === 'discussion' ? 'reading' :
+            'important_date'
 
-        eventsToInsert.push({
-          course_id: course.id,
-          user_id: user.id,
-          type: eventType,
-          title: importantDate.event,
-          description: importantDate.description || '',
-          date: importantDate.date,
-          completed: false,
-          synced_to_calendar: false,
-        })
+          eventsToInsert.push({
+            course_id: course.id,
+            user_id: user.id,
+            type: eventType,
+            title: importantDate.event,
+            description: importantDate.description || '',
+            date: importantDate.date,
+            completed: false,
+            synced_to_calendar: false,
+          })
+        }
       }
     }
 
@@ -501,40 +510,38 @@ Return the data as a JSON object following the exact structure specified.`,
       if (eventsError) {
         console.error('Error creating events:', eventsError)
         // Don't fail the whole request if events fail, just log it
-      } else {
-        events = insertedEvents || []
+      } else if (insertedEvents) {
+        // Transform events to camelCase
+        events = insertedEvents.map((event: any) => ({
+          id: event.id,
+          courseId: event.course_id,
+          userId: event.user_id,
+          type: event.type,
+          title: event.title,
+          description: event.description,
+          date: event.date,
+          time: event.time,
+          location: event.location,
+          points: event.points,
+          submissionMethod: event.submission_method,
+          coverage: event.coverage,
+          completed: event.completed,
+          syncedToCalendar: event.synced_to_calendar,
+          googleCalendarEventId: event.google_calendar_event_id,
+          confidence: event.confidence,
+          createdAt: event.created_at,
+          updatedAt: event.updated_at,
+        }))
+
+        // Update course with event count
+        await supabase
+          .from('courses')
+          .update({ events_extracted: events.length })
+          .eq('id', course.id)
+
+        // Update the course object
+        course.eventsExtracted = events.length
       }
-
-      // Transform events to camelCase
-      events = insertedEvents.map((event: any) => ({
-        id: event.id,
-        courseId: event.course_id,
-        userId: event.user_id,
-        type: event.type,
-        title: event.title,
-        description: event.description,
-        date: event.date,
-        time: event.time,
-        location: event.location,
-        points: event.points,
-        submissionMethod: event.submission_method,
-        coverage: event.coverage,
-        completed: event.completed,
-        syncedToCalendar: event.synced_to_calendar,
-        googleCalendarEventId: event.google_calendar_event_id,
-        confidence: event.confidence,
-        createdAt: event.created_at,
-        updatedAt: event.updated_at,
-      }))
-
-      // Update course with event count
-      await supabase
-        .from('courses')
-        .update({ events_extracted: events.length })
-        .eq('id', course.id)
-
-      // Update the course object
-      course.eventsExtracted = events.length
     }
 
     return NextResponse.json({

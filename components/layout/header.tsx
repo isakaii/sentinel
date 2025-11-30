@@ -3,6 +3,7 @@
 import { Calendar, Settings, Bell, LogOut } from "lucide-react";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { GoogleConnectionButton } from "@/components/google/google-connection-button";
 
 export function Header() {
   const { user, signOut } = useAuth();
@@ -33,6 +34,9 @@ export function Header() {
 
           {/* Right Side */}
           <div className="flex items-center gap-4">
+            {/* Google Calendar Connection */}
+            <GoogleConnectionButton />
+
             {/* Notification Icon */}
             <button
               className="relative rounded-lg p-2 hover:bg-gray-100 transition-colors"
