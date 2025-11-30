@@ -11,7 +11,7 @@ Sentinel is an academic calendar management application built with Next.js 15 th
 - ✅ Backend core features implemented (authentication, database, API routes, PDF processing, AI extraction)
 - ✅ Date synchronization (timeline shows only upcoming events based on current date)
 - ✅ Event completion tracking, event editing (CRUD)
-- 🚧 In progress: Google Calendar integration and advanced features
+- ✅ Google Calendar integration (OAuth + manual sync working, automatic sync not yet implemented)
 
 ## Development Commands
 
@@ -62,8 +62,6 @@ Components are organized by domain:
 - `lib/supabase/server.ts` - Server-side Supabase client (for API routes)
 - `lib/contexts/AuthContext.tsx` - React context for authentication state
 - `supabase/migrations/` - Database migration files
-  - `001_initial_schema.sql` - Tables, indexes, RLS policies, storage buckets
-  - `002_add_user_trigger.sql` - Automatic user creation trigger
 
 **Database Schema**:
 - `users` - User profiles with Google Calendar connection status
@@ -154,6 +152,18 @@ The following backend features are fully implemented:
   - Event creation in database
   - Progress feedback UI with rotating status messages
 
+### ✅ Google Calendar Integration
+- **OAuth Flow** - Complete Google OAuth 2.0 authentication with token storage and refresh
+- **Manual Calendar Management** - Users can create per-course calendars and manually sync events
+- **Sync Endpoints** - `app/api/courses/[id]/calendar/` routes for create/delete calendars and manual sync
+- **Google Calendar API Client** - `lib/google/calendar.ts` handles event creation/updates/deletion
+- **Connection Management** - `app/api/auth/google/` handles OAuth flow and disconnection
+
+**Current Limitations**:
+- No sync when events are edited or deleted in Sentinel
+- No two-way sync from Google Calendar back to Sentinel
+- No sync status indicators displayed on event cards
+
 ### ✅ UI Features
 - Course management (add, delete, view)
 - Event timeline with filtering (by course, by type, by completion status)
@@ -164,50 +174,16 @@ The following backend features are fully implemented:
 - Event count display (replaced problematic progress bars)
 - Dropdown menus for actions (edit event, delete course, delete event)
 - **Date-based filtering** - Dashboard shows only upcoming events (today and future)
+- **Google Calendar connection button** - Connect/disconnect Google account
 
 ## Remaining Features to Implement
-
-### 🚧 Priority 1: Google Calendar Integration
-**Status**: Database schema ready (`google_calendar_connected`, `synced_to_calendar`, `google_calendar_event_id` fields exist)
-
-**Remaining Work**:
-1. **OAuth Flow**
-   - Implement Google OAuth 2.0 callback endpoint
-   - Store refresh tokens securely in user profiles
-   - Add "Connect Google Calendar" button to UI
-   - Handle token refresh for long-lived access
-
-2. **Two-Way Sync**
-   - Create events in Google Calendar when extracted from syllabus
-   - Update events in Google Calendar when modified in Sentinel
-   - Delete from Google Calendar when deleted in Sentinel
-   - Sync completion status to Google Calendar
-   - Handle sync conflicts and errors gracefully
-
-3. **UI Updates**
-   - Show sync status on event cards
-   - Add manual sync trigger button
-   - Display last sync timestamp
-   - Show errors if sync fails
-
-**Files to Create/Modify**:
-- `app/api/auth/google/callback/route.ts` - OAuth callback handler
-- `app/api/calendar/sync/route.ts` - Manual sync endpoint
-- `lib/google/calendar.ts` - Google Calendar API client
-- Update event creation to trigger calendar sync
-- Add sync status indicators to UI components
-
-### 🚧 Priority 2: Additional Features
 
 1. **Notifications & Reminders**
    - Email reminders for upcoming deadlines
    - In-app notification system
-   - Customizable reminder timing (1 day before, 1 week before, etc.)
 
-2. **Bulk Operations**
-   - Select multiple events for bulk actions
-   - Bulk delete events
-   - Bulk mark as complete
+2. **Google Calendar sync status indicators displayed on Course cards**
+   - Status of whether the course is added to Google Calendar
 
 3. **Advanced Syllabus Parsing**
    - Support for non-PDF formats (Word docs, images)
@@ -215,25 +191,14 @@ The following backend features are fully implemented:
    - AI improvement: better date inference and context understanding
    - Handle multi-semester syllabi
 
-4. **Analytics & Insights**
-   - Workload visualization (events per week)
-   - Course-by-course workload comparison
-   - Upcoming deadline density heatmap
-   - Study time recommendations based on upcoming events
-   - Completion statistics and trends
+4. **2-Way Sync for Sentinel / Google Calendar**
+   - Reflect changes on Sentinel to Google Calendar events, and vice versa
 
 5. **Course Management Enhancements**
-   - Edit course details (name, instructor, term)
    - Archive courses instead of deleting
-   - Course templates for common course structures
    - Re-upload syllabus to update events
 
-6. **Export Features**
-   - Export events to .ics file
-   - Export to other calendar platforms (Outlook, Apple Calendar)
-   - PDF export of schedule
-
-7. **Collaboration Features**
+6. **Collaboration Features**
    - Share course schedules with classmates
    - Group study session scheduling
    - Study group coordination

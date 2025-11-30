@@ -15,6 +15,7 @@ export interface GoogleCalendarEvent {
   id?: string;
   summary: string;
   description?: string;
+  location?: string;
   start: {
     dateTime?: string;
     date?: string;
@@ -81,8 +82,8 @@ export async function createCalendar(
     return {
       id: response.data.id!,
       summary: response.data.summary!,
-      description: response.data.description,
-      timeZone: response.data.timeZone
+      description: response.data.description ?? undefined,
+      timeZone: response.data.timeZone ?? undefined
     };
   } catch (error) {
     console.error('Error creating calendar:', error);
@@ -234,8 +235,8 @@ export async function listCalendars(refreshToken: string): Promise<GoogleCalenda
     return response.data.items?.map(item => ({
       id: item.id!,
       summary: item.summary!,
-      description: item.description,
-      timeZone: item.timeZone
+      description: item.description ?? undefined,
+      timeZone: item.timeZone ?? undefined
     })) || [];
   } catch (error) {
     console.error('Error listing calendars:', error);

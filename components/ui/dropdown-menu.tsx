@@ -28,7 +28,7 @@ export function DropdownMenu({ trigger, children, align = "right", triggerClassN
       >
         <MenuItems
           className={cn(
-            "absolute z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none",
+            "absolute z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:divide-gray-700 dark:bg-gray-800 dark:ring-gray-700",
             align === "left" ? "left-0" : "right-0"
           )}
         >
@@ -56,11 +56,11 @@ export function DropdownMenuItem({ onClick, children, className, danger }: Dropd
             "group flex w-full items-center px-4 py-2 text-sm",
             danger
               ? active
-                ? "bg-red-100 text-red-900"
-                : "text-red-600"
+                ? "bg-red-100 text-red-900 dark:bg-red-900/30 dark:text-red-400"
+                : "text-red-600 dark:text-red-400"
               : active
-              ? "bg-gray-100 text-gray-900"
-              : "text-gray-700",
+              ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100"
+              : "text-gray-700 dark:text-gray-300",
             className
           )}
           onClick={() => {

@@ -292,7 +292,7 @@ export function UploadSyllabusModal({
                   </div>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
                     onClick={() => window.location.href = '/api/auth/google'}
                     className="ml-4 whitespace-nowrap"

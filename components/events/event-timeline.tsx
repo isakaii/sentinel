@@ -62,7 +62,7 @@ export function EventTimeline({ events, courses, onDeleteEvent, onToggleComplete
       {/* Header and Controls */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Event Timeline</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Event Timeline</h2>
 
           {/* View Mode Toggle */}
           <div className="flex gap-2">
@@ -97,12 +97,12 @@ export function EventTimeline({ events, courses, onDeleteEvent, onToggleComplete
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
           />
-          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer ml-2">
+          <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer ml-2">
             <input
               type="checkbox"
               checked={showCompleted}
               onChange={(e) => setShowCompleted(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+              className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-800"
             />
             Show completed
           </label>
@@ -111,14 +111,14 @@ export function EventTimeline({ events, courses, onDeleteEvent, onToggleComplete
 
       {/* Events List */}
       {filteredEvents.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-500">No events found</p>
+        <div className="rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400">No events found</p>
         </div>
       ) : (
         <div className="space-y-6">
           {Object.entries(groupedEvents).map(([group, groupEvents]) => (
             <div key={group}>
-              <h3 className="mb-3 text-lg font-semibold text-gray-900">{group}</h3>
+              <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">{group}</h3>
               <div className="space-y-3">
                 {groupEvents.map((event) => {
                   const course = courses.find((c) => c.id === event.courseId)!;

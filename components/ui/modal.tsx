@@ -39,7 +39,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
       {/* Modal */}
       <div
         className={cn(
-          "relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl",
+          "relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800",
           className
         )}
         role="dialog"
@@ -48,13 +48,13 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
         {/* Header */}
         {title && (
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>
             <button
               onClick={onClose}
-              className="rounded-lg p-1 hover:bg-gray-100 transition-colors"
+              className="rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label="Close modal"
             >
-              <X className="h-5 w-5 text-gray-500" />
+              <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             </button>
           </div>
         )}

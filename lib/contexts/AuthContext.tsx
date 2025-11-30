@@ -1,14 +1,19 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { User } from '@supabase/supabase-js'
+import { User, AuthError, Session } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
+
+interface SignUpData {
+  user: User | null
+  session: Session | null
+}
 
 interface AuthContextType {
   user: User | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>
-  signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null }>
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
+  signUp: (email: string, password: string, name?: string) => Promise<{ error: AuthError | null; data: SignUpData }>
   signOut: () => Promise<void>
 }
 

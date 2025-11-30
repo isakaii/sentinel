@@ -24,12 +24,22 @@
   --color-event-reading: #10b981;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   * {
     border-color: theme(colors.gray.200);
   }
 
+  .dark * {
+    border-color: theme(colors.gray.700);
+  }
+
   body {
     @apply bg-gray-50 text-gray-900;
+  }
+
+  .dark body {
+    @apply bg-gray-900 text-gray-100;
   }
 }
