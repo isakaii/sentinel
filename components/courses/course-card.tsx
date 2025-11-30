@@ -34,7 +34,7 @@ export function CourseCard({ course, onUploadSyllabus, onDelete }: CourseCardPro
               <h3 className={cn("font-bold text-lg", colorClasses.text)}>
                 {course.courseCode}
               </h3>
-              <p className="text-sm text-gray-600">{course.courseName}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">{course.courseName}</p>
             </div>
           </div>
           <DropdownMenu
@@ -56,8 +56,8 @@ export function CourseCard({ course, onUploadSyllabus, onDelete }: CourseCardPro
         {/* Instructor */}
         {course.instructor && (
           <div>
-            <p className="text-sm text-gray-500">Instructor</p>
-            <p className="text-sm font-medium text-gray-900">{course.instructor}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Instructor</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{course.instructor}</p>
           </div>
         )}
 
@@ -65,15 +65,15 @@ export function CourseCard({ course, onUploadSyllabus, onDelete }: CourseCardPro
         <div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-gray-400" />
-              <span className="text-sm font-medium text-gray-700">
+              <FileText className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {course.syllabusUploaded
                   ? "Syllabus uploaded"
                   : "No syllabus uploaded"}
               </span>
             </div>
             {course.syllabusUploaded && (
-              <span className="flex items-center gap-1 text-xs text-green-600">
+              <span className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
                 <Check className="h-3 w-3" />
                 Synced
               </span>
@@ -87,7 +87,7 @@ export function CourseCard({ course, onUploadSyllabus, onDelete }: CourseCardPro
             "rounded-lg px-4 py-3 flex items-center justify-between",
             colorClasses.bg
           )}>
-            <span className="text-sm font-medium text-gray-700">Calendar Events</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Calendar Events</span>
             <span className={cn(
               "text-2xl font-bold",
               colorClasses.text
@@ -101,7 +101,7 @@ export function CourseCard({ course, onUploadSyllabus, onDelete }: CourseCardPro
         {!course.syllabusUploaded && onUploadSyllabus && (
           <button
             onClick={onUploadSyllabus}
-            className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:border-gray-500 dark:hover:bg-gray-700"
           >
             <Upload className="h-4 w-4" />
             Upload Syllabus

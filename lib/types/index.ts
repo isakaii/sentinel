@@ -48,12 +48,17 @@ export interface Event {
   updatedAt: string;
 }
 
+export type ThemePreference = 'light' | 'dark' | 'system';
+export type NotificationTiming = '1_day' | '3_days' | '1_week';
+
 export interface User {
   id: string;
   email: string;
   name?: string;
   avatarUrl?: string;
   googleCalendarConnected: boolean;
+  themePreference: ThemePreference;
+  notificationTiming: NotificationTiming[];
   createdAt: string;
 }
 

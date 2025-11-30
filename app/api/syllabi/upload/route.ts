@@ -500,7 +500,7 @@ Return the data as a JSON object following the exact structure specified.`,
     }
 
     // Insert all events
-    let events = []
+    let events: Record<string, unknown>[] = []
     if (eventsToInsert.length > 0) {
       const { data: insertedEvents, error: eventsError } = await supabase
         .from('events')

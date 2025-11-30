@@ -23,10 +23,10 @@ export function NextDeadline({ event, course }: NextDeadlineProps) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="bg-red-50 px-6 py-3 border-b border-red-100">
+      <div className="bg-red-50 dark:bg-red-900/20 px-6 py-3 border-b border-red-100 dark:border-red-800">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-red-900">Next Deadline</p>
-          <Clock className="h-4 w-4 text-red-700" />
+          <p className="text-sm font-medium text-red-900 dark:text-red-400">Next Deadline</p>
+          <Clock className="h-4 w-4 text-red-700 dark:text-red-400" />
         </div>
       </div>
 
@@ -34,7 +34,7 @@ export function NextDeadline({ event, course }: NextDeadlineProps) {
         <div className="flex items-start gap-4 mb-4">
           <div className="flex-shrink-0 text-4xl">{eventIcons[event.type]}</div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">{event.title}</h3>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{event.title}</h3>
             <div className="flex items-center gap-2 mb-2">
               <Badge variant={event.type}>{event.type}</Badge>
               <span className={`text-sm font-medium ${colorClasses.text}`}>
@@ -42,9 +42,9 @@ export function NextDeadline({ event, course }: NextDeadlineProps) {
               </span>
             </div>
             {event.description && (
-              <p className="text-gray-600 mb-3">{event.description}</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-3">{event.description}</p>
             )}
-            <div className="flex items-center gap-4 text-sm text-gray-500">
+            <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
               {event.time && (
                 <span className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
@@ -56,10 +56,10 @@ export function NextDeadline({ event, course }: NextDeadlineProps) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+        <div className="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-700 p-4">
           <div>
-            <p className="text-sm text-gray-500 mb-1">Due {formatRelativeDate(event.date)}</p>
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Due {formatRelativeDate(event.date)}</p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-white">
               {formatEventDate(event.date)} at {formatEventTime(event.time || "23:59")}
             </p>
           </div>

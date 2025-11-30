@@ -6,6 +6,8 @@ export const mockUser: User = {
   email: "isabella.he@university.edu",
   name: "Isabella",
   googleCalendarConnected: true,
+  themePreference: "system",
+  notificationTiming: ["1_day"],
   createdAt: new Date().toISOString(),
 };
 
@@ -15,7 +17,7 @@ export const mockCourses: Course[] = [
     userId: "1",
     courseName: "Introduction to Psychology",
     courseCode: "PSYC 201",
-    color: "purple",
+    color: "cardinal",
     instructor: "Dr. Sarah Johnson",
     term: "Fall 2024",
     syllabusUploaded: true,

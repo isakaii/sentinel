@@ -41,7 +41,7 @@ export function EventCard({ event, course, onDelete, onToggleComplete, onEdit }:
   };
 
   return (
-    <Card className={`p-4 hover:shadow-md transition-shadow ${event.completed ? 'bg-gray-50' : ''}`}>
+    <Card className={`p-4 hover:shadow-md transition-shadow ${event.completed ? 'bg-gray-50 dark:bg-gray-800/50' : ''}`}>
       <div className="flex gap-3">
         {/* Completion Checkbox */}
         <div className="flex-shrink-0 pt-1">
@@ -51,7 +51,7 @@ export function EventCard({ event, course, onDelete, onToggleComplete, onEdit }:
             className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${
               event.completed
                 ? 'bg-green-500 border-green-500'
-                : 'border-gray-300 hover:border-green-500'
+                : 'border-gray-300 hover:border-green-500 dark:border-gray-600'
             } ${isToggling ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${
               !onToggleComplete ? 'cursor-default' : ''
             }`}
@@ -70,15 +70,15 @@ export function EventCard({ event, course, onDelete, onToggleComplete, onEdit }:
         {/* Event Details */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
-            <h3 className={`font-semibold truncate ${event.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+            <h3 className={`font-semibold truncate ${event.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
               {event.title}
             </h3>
             <div className="flex items-center gap-2">
               <Badge variant={event.type}>{event.type}</Badge>
               {(onDelete || onEdit) && (
                 <DropdownMenu
-                  trigger={<MoreVertical className="h-4 w-4 text-gray-600" />}
-                  triggerClassName="rounded-lg p-1 hover:bg-gray-100 transition-colors"
+                  trigger={<MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-400" />}
+                  triggerClassName="rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   <DropdownMenuGroup>
                     {onEdit && (
@@ -103,14 +103,14 @@ export function EventCard({ event, course, onDelete, onToggleComplete, onEdit }:
             <span className={`text-sm font-medium ${colorClasses.text}`}>
               {course.courseCode}
             </span>
-            <span className="text-sm text-gray-500">{course.courseName}</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">{course.courseName}</span>
           </div>
 
           {event.description && (
-            <p className="text-sm text-gray-600 mb-2 line-clamp-2">{event.description}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">{event.description}</p>
           )}
 
-          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
             {event.time && (
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
@@ -134,8 +134,8 @@ export function EventCard({ event, course, onDelete, onToggleComplete, onEdit }:
 
         {/* Due Date */}
         <div className="flex-shrink-0 text-right">
-          <p className="text-xs text-gray-500 mb-1">Due</p>
-          <p className="text-sm font-medium text-gray-900">{formatEventDate(event.date)}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Due</p>
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatEventDate(event.date)}</p>
         </div>
       </div>
     </Card>
