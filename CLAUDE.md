@@ -11,7 +11,10 @@ Sentinel is an academic calendar management application built with Next.js 15 th
 - ✅ Backend core features implemented (authentication, database, API routes, PDF processing, AI extraction)
 - ✅ Date synchronization (timeline shows only upcoming events based on current date)
 - ✅ Event completion tracking, event editing (CRUD)
-- ✅ Google Calendar integration (OAuth + manual sync working, automatic sync not yet implemented)
+- ✅ Google Calendar integration (OAuth + manual sync working)
+- ✅ Dark mode with system preference detection
+- ✅ In-app notifications for upcoming deadlines
+- ✅ Settings modal with user preferences
 
 ## Development Commands
 
@@ -38,18 +41,21 @@ This is a **Next.js 15 App Router** project. All pages use the `app/` directory 
   - `courses/` - CRUD operations for courses
   - `events/` - CRUD operations for events
   - `syllabi/upload/` - PDF upload and AI-powered extraction
-  - `auth/` - Authentication endpoints (Supabase Auth)
+  - `auth/` - Authentication endpoints (Supabase Auth, Google OAuth)
+  - `user/preferences/` - User preferences API
 
 ### Component Organization
 
 Components are organized by domain:
 
 - `components/ui/` - Base UI primitives (button, card, badge, modal, input, select, dropdown-menu)
-- `components/layout/` - Layout components (header, navigation-tabs, dashboard-layout)
+- `components/layout/` - Layout components (header, navigation-tabs, dashboard-layout, notification-bell)
 - `components/courses/` - Course-specific components (course-card, course-list, add-course-modal, upload-syllabus-modal)
 - `components/events/` - Event-specific components (event-card, event-timeline, next-deadline, coming-up-week)
 - `components/auth/` - Authentication components (login-form, signup-form, auth-modal)
-- `components/providers/` - React context providers (auth-provider)
+- `components/settings/` - Settings components (settings-modal)
+- `components/google/` - Google integration components (google-connection-button)
+- `components/providers/` - React context providers (auth-provider, Providers wrapper)
 
 **Pattern**: All UI components use the `cn()` utility from `lib/utils/cn.ts` for className merging with Tailwind.
 
@@ -57,15 +63,19 @@ Components are organized by domain:
 
 **Current State**: Application uses Supabase PostgreSQL database with Row Level Security (RLS).
 
-- `lib/types/index.ts` - TypeScript interfaces for Course, Event, User, DashboardStats
+- `lib/types/index.ts` - TypeScript interfaces for Course, Event, User, DashboardStats, ThemePreference, NotificationTiming
 - `lib/supabase/client.ts` - Client-side Supabase client
 - `lib/supabase/server.ts` - Server-side Supabase client (for API routes)
 - `lib/contexts/AuthContext.tsx` - React context for authentication state
+- `lib/contexts/ThemeContext.tsx` - React context for theme/dark mode state
 - `supabase/migrations/` - Database migration files
+  - `001_initial_schema.sql` - Tables, indexes, RLS policies, storage buckets
+  - `002_add_user_trigger.sql` - Automatic user creation trigger
+  - `005_add_user_preferences.sql` - Theme preference and notification timing columns
 
 **Database Schema**:
-- `users` - User profiles with Google Calendar connection status
-- `courses` - Course information with syllabus URLs and event counts
+- `users` - User profiles with Google Calendar connection status, theme preference, notification timing
+- `courses` - Course information with syllabus URLs, event counts, Google Calendar IDs
 - `events` - Calendar events with course relationships and sync status
 - Storage bucket: `syllabi` - PDF storage with user-scoped access policies
 
@@ -78,20 +88,30 @@ Components are organized by domain:
 
 Core types are defined in `lib/types/index.ts`:
 
-- **CourseColor**: 8 predefined colors for course organization (purple, blue, red, green, orange, pink, indigo, teal)
+- **CourseColor**: 8 predefined colors for course organization (cardinal, blue, red, green, orange, pink, indigo, teal)
 - **EventType**: assignment, exam, quiz, reading, important_date
-- **Course**: Main course entity with userId, syllabusUrl, eventsExtracted count
+- **ThemePreference**: 'light' | 'dark' | 'system'
+- **NotificationTiming**: '1_day' | '3_days' | '1_week'
+- **Course**: Main course entity with userId, syllabusUrl, eventsExtracted count, googleCalendarId
 - **Event**: Calendar event with courseId, type, date/time, completion status, Google Calendar sync status
+- **User**: User profile with themePreference, notificationTiming array, googleCalendarConnected
 
 ### Styling
 
-**Tailwind CSS** is used throughout with custom color extensions:
+**Tailwind CSS v4** is used throughout with custom color extensions:
 
-- Course colors: `course.{color}` (e.g., `bg-course-purple`)
+- Course colors: `course.{color}` (e.g., `bg-course-cardinal`)
 - Event type colors: `event.{type}` (e.g., `text-event-exam`)
+- Dark mode: Uses `@custom-variant dark (&:where(.dark, .dark *))` in globals.css
 - Import alias: `@/*` maps to project root
 
 Configuration in `tailwind.config.ts` defines the color system that matches the design mockups.
+
+**Dark Mode Implementation**:
+- All components include `dark:` variant classes for dark mode styling
+- Theme state managed by `ThemeContext` with localStorage persistence
+- System preference detection via `window.matchMedia('(prefers-color-scheme: dark)')`
+- Flash prevention script in `app/layout.tsx` applies theme before render
 
 ## Environment Variables
 
@@ -137,6 +157,10 @@ The following backend features are fully implemented:
   - `PATCH /api/events/[id]` - Update event (completion status, details)
   - `DELETE /api/events/[id]` - Delete individual event
 
+- **User Preferences API** (`app/api/user/preferences/`)
+  - `GET /api/user/preferences` - Get user's theme and notification settings
+  - `PATCH /api/user/preferences` - Update user preferences
+
 ### ✅ PDF Processing & AI Extraction
 - **Syllabus Upload** (`app/api/syllabi/upload/`)
   - PDF file validation (type, size checks)
@@ -160,9 +184,30 @@ The following backend features are fully implemented:
 - **Connection Management** - `app/api/auth/google/` handles OAuth flow and disconnection
 
 **Current Limitations**:
-- No sync when events are edited or deleted in Sentinel
+- No automatic sync when events are edited or deleted in Sentinel
 - No two-way sync from Google Calendar back to Sentinel
-- No sync status indicators displayed on event cards
+
+### ✅ Dark Mode & Theming
+- **ThemeContext** (`lib/contexts/ThemeContext.tsx`) - Global theme state management
+- Three theme options: Light, Dark, System (follows OS preference)
+- Persistence in localStorage with database sync
+- System preference change listener for real-time updates
+- Flash prevention with inline script before page render
+- All UI components styled with `dark:` Tailwind variants
+
+### ✅ In-App Notifications
+- **Notification Bell** (`components/layout/notification-bell.tsx`) - Header component showing upcoming deadlines
+- Configurable reminder timing (1 day, 3 days, 1 week before deadlines)
+- Badge showing count of upcoming items
+- Dropdown with grouped deadlines by urgency (Today, Tomorrow, This week)
+- Click to navigate to events page
+
+### ✅ Settings Modal
+- **Settings Modal** (`components/settings/settings-modal.tsx`) - Quick access settings UI
+- **Appearance Section**: Theme selector with Light/Dark/System options
+- **Deadline Reminders Section**: Configurable notification timing checkboxes
+- **Google Calendar Section**: Connection status with connect/disconnect button
+- Accessible via settings icon in header
 
 ### ✅ UI Features
 - Course management (add, delete, view)
@@ -171,34 +216,32 @@ The following backend features are fully implemented:
 - **Event completion tracking** with checkbox UI, visual feedback, and show/hide completed filter
 - **Event editing** with full modal interface for updating all event fields (title, description, date, time, type)
 - Loading states with animated feedback
-- Event count display (replaced problematic progress bars)
+- Event count display
 - Dropdown menus for actions (edit event, delete course, delete event)
 - **Date-based filtering** - Dashboard shows only upcoming events (today and future)
 - **Google Calendar connection button** - Connect/disconnect Google account
+- **Full dark mode support** across all components
 
 ## Remaining Features to Implement
 
-1. **Notifications & Reminders**
-   - Email reminders for upcoming deadlines
-   - In-app notification system
-
-2. **Google Calendar sync status indicators displayed on Course cards**
+1. **Google Calendar sync status indicators displayed on Course cards**
    - Status of whether the course is added to Google Calendar
 
-3. **Advanced Syllabus Parsing**
+2. **Advanced Syllabus Parsing**
    - Support for non-PDF formats (Word docs, images)
    - Manual event creation from UI
    - AI improvement: better date inference and context understanding
    - Handle multi-semester syllabi
 
-4. **2-Way Sync for Sentinel / Google Calendar**
+3. **2-Way Sync for Sentinel / Google Calendar**
    - Reflect changes on Sentinel to Google Calendar events, and vice versa
+   - Automatic sync on event edit/delete
 
-5. **Course Management Enhancements**
+4. **Course Management Enhancements**
    - Archive courses instead of deleting
    - Re-upload syllabus to update events
 
-6. **Collaboration Features**
+5. **Collaboration Features**
    - Share course schedules with classmates
    - Group study session scheduling
    - Study group coordination
@@ -211,6 +254,11 @@ The application uses React's `useState` for local state and React Context for gl
 - `lib/contexts/AuthContext.tsx` - Global auth state provider
 - Wraps app in `components/providers/auth-provider.tsx`
 - Provides `user`, `loading`, and auth methods to all components
+
+### Theme State
+- `lib/contexts/ThemeContext.tsx` - Global theme state provider
+- Provides `theme`, `resolvedTheme`, and `setTheme` to all components
+- Handles system preference detection and localStorage persistence
 
 ### Page-Level State Management
 
@@ -246,11 +294,17 @@ The app uses HeadlessUI's `Menu` component for dropdowns. Key implementation det
 - Call action handlers BEFORE closing menu to ensure event propagation
 - Example: `onClick={() => { onClick?.(); setTimeout(() => close(), 0); }}`
 
+### Dark Mode Pattern
+All components should include dark mode variants:
+- Background: `bg-white dark:bg-gray-900` or `bg-gray-50 dark:bg-gray-800`
+- Text: `text-gray-900 dark:text-white` or `text-gray-600 dark:text-gray-400`
+- Borders: `border-gray-200 dark:border-gray-700`
+- Hover states: Include both light and dark variants
+
 ### Date Handling
 - Event dates stored as `DATE` type in database (YYYY-MM-DD format)
 - Event times stored as `TIME` type (HH:MM:SS format)
 - Use `lib/utils/date.ts` utilities for formatting and display
-- **Known Issue**: Need to sync to current date for timeline features (see Priority 1 in TODOs)
 
 ### File Upload & Processing
 - Maximum PDF size: 10MB
@@ -274,7 +328,7 @@ The app uses HeadlessUI's `Menu` component for dropdowns. Key implementation det
 ## Branch Strategy
 
 - `main` - Main branch for production
-- `backend-dev` - Current development branch (check git status before working)
+- `backend-features` - Current development branch
 
 When creating PRs, target the `main` branch unless otherwise specified.
 
@@ -292,6 +346,13 @@ When creating PRs, target the `main` branch unless otherwise specified.
 3. Check authentication: `const { data: { user } } = await supabase.auth.getUser()`
 4. Implement handler with proper error handling
 5. Transform snake_case database fields to camelCase for frontend
+
+### Adding Dark Mode to a Component
+1. Add `dark:` variants to all background colors (e.g., `bg-white dark:bg-gray-900`)
+2. Add `dark:` variants to text colors (e.g., `text-gray-900 dark:text-white`)
+3. Add `dark:` variants to border colors (e.g., `border-gray-200 dark:border-gray-700`)
+4. Update hover and focus states with dark variants
+5. Test in both light and dark modes
 
 ### Testing Syllabus Parsing
 1. Ensure `OPENAI_API_KEY` is set in `.env.local`
