@@ -1,7 +1,7 @@
 import { Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Event, Course } from "@/lib/types";
-import { formatEventDate, formatEventTime } from "@/lib/utils/date";
+import { formatEventDate, formatEventTime, isWithinNextWeek } from "@/lib/utils/date";
 import { getCourseColorClasses } from "@/lib/utils/colors";
 
 interface ComingUpWeekProps {
@@ -18,8 +18,8 @@ const eventIcons = {
 };
 
 export function ComingUpWeek({ events, courses }: ComingUpWeekProps) {
-  // Take only the first 3 upcoming events
-  const upcomingEvents = events.slice(0, 3);
+  // Filter to events within next 7 days, then take first 3
+  const upcomingEvents = events.filter((e) => isWithinNextWeek(e.date)).slice(0, 3);
 
   return (
     <div>

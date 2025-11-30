@@ -88,10 +88,18 @@ export async function PATCH(
       .select()
       .single()
 
-    if (error || !courseData) {
+    if (error) {
+      console.error('Error updating course:', error)
       return NextResponse.json(
-        { error: 'Failed to update course' },
+        { error: error.message || 'Failed to update course' },
         { status: 500 }
+      )
+    }
+
+    if (!courseData) {
+      return NextResponse.json(
+        { error: 'Course not found' },
+        { status: 404 }
       )
     }
 

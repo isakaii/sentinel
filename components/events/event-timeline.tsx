@@ -12,19 +12,23 @@ interface EventTimelineProps {
   events: Event[];
   courses: Course[];
   onDeleteEvent?: (eventId: string) => void;
+  onToggleComplete?: (eventId: string, completed: boolean) => void;
+  onEditEvent?: (event: Event) => void;
 }
 
 type ViewMode = "chronological" | "by-course";
 
-export function EventTimeline({ events, courses, onDeleteEvent }: EventTimelineProps) {
+export function EventTimeline({ events, courses, onDeleteEvent, onToggleComplete, onEditEvent }: EventTimelineProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("chronological");
   const [filterCourse, setFilterCourse] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
+  const [showCompleted, setShowCompleted] = useState<boolean>(true);
 
   // Filter events
   const filteredEvents = events.filter((event) => {
     if (filterCourse !== "all" && event.courseId !== filterCourse) return false;
     if (filterType !== "all" && event.type !== filterType) return false;
+    if (!showCompleted && event.completed) return false;
     return true;
   });
 
@@ -82,7 +86,7 @@ export function EventTimeline({ events, courses, onDeleteEvent }: EventTimelineP
         </div>
 
         {/* Filters */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
           <Select
             options={courseOptions}
             value={filterCourse}
@@ -93,6 +97,15 @@ export function EventTimeline({ events, courses, onDeleteEvent }: EventTimelineP
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
           />
+          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer ml-2">
+            <input
+              type="checkbox"
+              checked={showCompleted}
+              onChange={(e) => setShowCompleted(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+            />
+            Show completed
+          </label>
         </div>
       </div>
 
@@ -115,6 +128,8 @@ export function EventTimeline({ events, courses, onDeleteEvent }: EventTimelineP
                       event={event}
                       course={course}
                       onDelete={() => onDeleteEvent?.(event.id)}
+                      onToggleComplete={(completed) => onToggleComplete?.(event.id, completed)}
+                      onEdit={() => onEditEvent?.(event)}
                     />
                   );
                 })}
